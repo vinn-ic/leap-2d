@@ -1,0 +1,17 @@
+{
+    "configurations": [
+        {
+            "name": "MSYS2 MinGW",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/raylib-master/src"
+            ],
+            "defines": [],
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-gcc-x64",
+            "configurationProvider": "ms-vscode.makefile-tools"
+        }
+    ],
+    "version": 4
+}
