@@ -64,9 +64,17 @@ if(IsKeyPressed(KEY_Q)){
     float desh = 150.0f;
     switch (key_direction){
         case 'A':
+            if(IsKeyDown(KEY_W)){
+                player.rect.y -= desh/2;
+                player.isOnground = false;
+            }
             player.rect.x -= desh;
         break;
         case 'D':
+            if(IsKeyDown(KEY_W)){
+                player.rect.y -= desh/2;
+                player.isOnground = false;
+            }
             player.rect.x += desh;
         break;
         case 'i':
