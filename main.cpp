@@ -1,6 +1,8 @@
 #include "raylib.h"
 #include <iostream>
 
+//arrumar o erro da camera!!!!!
+
 using namespace std;
 
 struct player{
@@ -21,15 +23,22 @@ player player = {{100, screenheight - 60, 50,50},{0,0}, true};
 const float gravidade = 400.0f;
 const float jumpforce = -350.0f;
 const float movespeed = 200.0f;
+Vector2 playerposition = {player.rect.x, player.rect.y};
 
 
 Rectangle ground = {0, screenheight - 15, screenwidth, 10};
 
+Camera2D camera = { 0 };
+camera.target = playerposition;
+camera.offset = (Vector2){screenwidth/2.0f, 840};
+camera.rotation = 0.0f;          // Sem rotação
+camera.zoom = 1.0f;
 
 SetTargetFPS(60);
 while (!WindowShouldClose()){
     //main loop
 float dt = GetFrameTime();// tudo que for usar a velocidade e etc usar o *dt 
+
 
 if(!player.isOnground){
     //se o player estiver pulando
@@ -89,14 +98,23 @@ if(CheckCollisionRecs(player.rect, ground)){
     player.velocity.y = 0;
     player.isOnground = true;
 }
+
+playerposition = {player.rect.x, 840};
+camera.target = playerposition;
+
+
 BeginDrawing();
 ClearBackground(RAYWHITE);
 
+BeginMode2D(camera);
+DrawRectangle(150,50,150,150, RED);
 DrawRectangleRec(ground, GREEN);
 DrawRectangleRec(player.rect, BLUE);
 
 EndDrawing();
 }
 
+CloseWindow();
+return 0;
 }
 //player.isOnGround = true/false, se esta no chão no momento,
