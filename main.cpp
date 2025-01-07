@@ -22,7 +22,8 @@ InitWindow(1600, 900, "game-2d-teste");
 player player = {{100, screenheight - 60, 50,50},{0,0}, true};
 const float gravidade = 400.0f;
 const float jumpforce = -350.0f;
-const float movespeed = 200.0f;
+const float movespeed = 6000.0f;
+const float horizontaldrag = 450.0f;//força do efeito de parar gradativamente!
 Vector2 playerposition = {player.rect.x, player.rect.y};
 
 
@@ -45,6 +46,18 @@ if(!player.isOnground){
     player.velocity.y += gravidade*dt;
     cout << "dont ground" << "\n";
 }
+// fazer o efeito de parar gradativamente
+if(player.velocity.x > 0){
+    player.velocity.x -= horizontaldrag*dt;
+    if(player.velocity.x < 0) player.velocity.x = 0;
+    
+}
+else if(player.velocity.x < 0){
+    player.velocity.x += horizontaldrag*dt;
+    if(player.velocity.x > 0) player.velocity.x = 0;
+
+}
+
 else if(player.isOnground){
     // se o player estiver no chão
     cout << "player ground!" << "\n";
@@ -53,12 +66,14 @@ else if(player.isOnground){
 if(IsKeyDown(KEY_D)){
     //mover para direita
     key_direction = 'D';
-    player.rect.x += movespeed*dt;
+    player.velocity.x += movespeed*dt;
+    if(player.velocity.x >= 300) player.velocity.x = 300;
 }
 if(IsKeyDown(KEY_A)){
     //mover para a esquerda
     key_direction = 'A';
-    player.rect.x -= movespeed*dt;
+    player.velocity.x -= movespeed*dt;
+    if(player.velocity.x <= -300) player.velocity.x = -300;
 }
 if(IsKeyDown(KEY_SPACE) && player.isOnground){
     //pulo
@@ -66,7 +81,7 @@ if(IsKeyDown(KEY_SPACE) && player.isOnground){
     player.velocity.y = jumpforce;
     player.isOnground = false;
 }
-player.rect.y += player.velocity.y * dt; // pasando as info do pulo para o rect.y para ter a vizualização e animação!
+cout << player.velocity.x << "\n";
 
 if(IsKeyPressed(KEY_Q)){
 
@@ -74,17 +89,19 @@ if(IsKeyPressed(KEY_Q)){
     switch (key_direction){
         case 'A':
             if(IsKeyDown(KEY_W)){
-                player.rect.y -= desh/2;
+                player.velocity.y -= desh/2;
                 player.isOnground = false;
             }
-            player.rect.x -= desh;
+                player.velocity.x -= desh;
+            
         break;
         case 'D':
             if(IsKeyDown(KEY_W)){
-                player.rect.y -= desh/2;
+                player.velocity.y -= desh/2;
                 player.isOnground = false;
+
             }
-            player.rect.x += desh;
+            player.velocity.x += desh;
         break;
         case 'i':
             cout << "inital" << "\n";
@@ -97,6 +114,15 @@ if(CheckCollisionRecs(player.rect, ground)){
     player.rect.y = ground.y - player.rect.height;
     player.velocity.y = 0;
     player.isOnground = true;
+}
+
+player.rect.y += player.velocity.y * dt; // pasando as info do pulo para o rect.y para ter a vizualização e animação!
+player.rect.x += player.velocity.x*dt;
+
+if(player.rect.y > 890){
+    //morrer por queda
+    player.rect.x = 100;
+    player.rect.y =  screenheight - 60;
 }
 
 playerposition = {player.rect.x, 840};
