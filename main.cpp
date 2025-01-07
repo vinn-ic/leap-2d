@@ -1,9 +1,16 @@
 #include "raylib.h"
 #include <iostream>
 
-//arrumar o erro da camera!!!!!
+// ARRUMAR O DESH LOGO EU ESTOU FICANDO LOUCO, ISSO ESTA MAIS FEIO QUE MINHA CARA!!!!
 
 using namespace std;
+//ver depois isso como funciona!!!!
+Vector2 Vector2Lerp(Vector2 start, Vector2 end, float alpha) {
+    return (Vector2){
+        start.x + alpha * (end.x - start.x),
+        start.y + alpha * (end.y - start.y)
+    };
+}
 
 struct player{
     Rectangle rect;
@@ -19,16 +26,17 @@ const int screenheight = 900;
 
 InitWindow(1600, 900, "game-2d-teste");
 
-player player = {{100, screenheight - 60, 50,50},{0,0}, true};
-const float gravidade = 400.0f;
-const float jumpforce = -350.0f;
+player player = {{100, screenheight - 60, 50,80},{0,0}, true};
+const float gravidade = 550.0f;
+const float jumpforce = -300.0f;
 const float movespeed = 6000.0f;
-const float horizontaldrag = 450.0f;//força do efeito de parar gradativamente!
+const float horizontaldrag = 400.0f;//força do efeito de parar gradativamente!
 Vector2 playerposition = {player.rect.x, player.rect.y};
 
 
 Rectangle ground = {0, screenheight - 15, screenwidth, 10};
 
+// config da camera 2d
 Camera2D camera = { 0 };
 camera.target = playerposition;
 camera.offset = (Vector2){screenwidth/2.0f, 840};
@@ -48,12 +56,12 @@ if(!player.isOnground){
 }
 // fazer o efeito de parar gradativamente
 if(player.velocity.x > 0){
-    player.velocity.x -= horizontaldrag*dt;
+    player.velocity.x -= horizontaldrag*dt*2;
     if(player.velocity.x < 0) player.velocity.x = 0;
     
 }
 else if(player.velocity.x < 0){
-    player.velocity.x += horizontaldrag*dt;
+    player.velocity.x += horizontaldrag*dt*2;
     if(player.velocity.x > 0) player.velocity.x = 0;
 
 }
@@ -84,24 +92,23 @@ if(IsKeyDown(KEY_SPACE) && player.isOnground){
 cout << player.velocity.x << "\n";
 
 if(IsKeyPressed(KEY_Q)){
-
-    float desh = 150.0f;
+    float desh = 250.0f;
     switch (key_direction){
         case 'A':
             if(IsKeyDown(KEY_W)){
-                player.velocity.y -= desh/2;
+                player.velocity.y -= desh;
                 player.isOnground = false;
             }
-                player.velocity.x -= desh;
+                player.rect.x -= desh;
             
         break;
         case 'D':
             if(IsKeyDown(KEY_W)){
-                player.velocity.y -= desh/2;
+                player.velocity.y -= desh;
                 player.isOnground = false;
 
             }
-            player.velocity.x += desh;
+            player.rect.x += desh;
         break;
         case 'i':
             cout << "inital" << "\n";
@@ -125,8 +132,14 @@ if(player.rect.y > 890){
     player.rect.y =  screenheight - 60;
 }
 
+float margin = 100.0f;
+Vector2 cameraTarget = camera.target;
+
 playerposition = {player.rect.x, 840};
-camera.target = playerposition;
+if (player.rect.x < camera.target.x - margin) cameraTarget.x = player.rect.x + margin;
+if (player.rect.x > camera.target.x + margin) cameraTarget.x = player.rect.x - margin;
+
+camera.target = Vector2Lerp(camera.target, cameraTarget, 0.1f);
 
 
 BeginDrawing();
