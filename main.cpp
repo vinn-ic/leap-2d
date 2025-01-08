@@ -1,7 +1,9 @@
 #include "raylib.h"
 #include <iostream>
+#include <vector>
+#include <limits>   
 
-// ARRUMAR O DESH LOGO EU ESTOU FICANDO LOUCO, ISSO ESTA MAIS FEIO QUE MINHA CARA!!!!
+//não pode ter plataforma em cima do player, 
 
 using namespace std;
 //ver depois isso como funciona!!!!
@@ -9,7 +11,7 @@ Vector2 Vector2Lerp(Vector2 start, Vector2 end, float alpha) {
     return (Vector2){
         start.x + alpha * (end.x - start.x),
         start.y + alpha * (end.y - start.y)
-    };
+        };
 }
 
 struct player{
@@ -17,16 +19,34 @@ struct player{
     Vector2 velocity;
     bool isOnground;
 };
+struct enemy{
+    Rectangle rect;
+};
 
 
+//width, height = largura, altura
 int main(){
+    //array para adicionar todos os chão ao mesmo tempo!
+vector<Rectangle> grounds = {
+    //  posX, posY, width, height
+        {0, 885, 850, 15},//cada linha é um chão, jeito mais facil que eu vi para ver isso!
+        {1090, 885, 350, 15},
+        {1740,885, 300, 15}
+    };
+
+
+int deaths = 0;
+int amount_desh = 3;
+
 char key_direction = 'i';
 const int screenwidth = 1600;
 const int screenheight = 900;
 
 InitWindow(1600, 900, "game-2d-teste");
 
-player player = {{100, screenheight - 60, 50,80},{0,0}, true};
+enemy enemy = {1100, 825, 50,60};
+
+player player = {{100, screenheight - 60, 50,60},{0,0}, true};
 const float gravidade = 550.0f;
 const float jumpforce = -300.0f;
 const float movespeed = 6000.0f;
@@ -34,7 +54,6 @@ const float horizontaldrag = 400.0f;//força do efeito de parar gradativamente!
 Vector2 playerposition = {player.rect.x, player.rect.y};
 
 
-Rectangle ground = {0, screenheight - 15, screenwidth, 10};
 
 // config da camera 2d
 Camera2D camera = { 0 };
@@ -43,17 +62,17 @@ camera.offset = (Vector2){screenwidth/2.0f, 840};
 camera.rotation = 0.0f;          // Sem rotação
 camera.zoom = 1.0f;
 
+bool enemy_cheek = false;
+
 SetTargetFPS(60);
 while (!WindowShouldClose()){
     //main loop
 float dt = GetFrameTime();// tudo que for usar a velocidade e etc usar o *dt 
 
 
-if(!player.isOnground){
-    //se o player estiver pulando
-    player.velocity.y += gravidade*dt;
-    cout << "dont ground" << "\n";
-}
+
+player.velocity.y += gravidade*dt;//gravidade do game
+
 // fazer o efeito de parar gradativamente
 if(player.velocity.x > 0){
     player.velocity.x -= horizontaldrag*dt*2;
@@ -65,6 +84,20 @@ else if(player.velocity.x < 0){
     if(player.velocity.x > 0) player.velocity.x = 0;
 
 }
+//movimentação do inimigo
+if (!enemy_cheek) { 
+    enemy.rect.x += 5; 
+    if (enemy.rect.x >= 1340) { // Marca como verdadeiro quando ultrapassa ou atinge o limite
+        enemy_cheek = true; 
+    }
+}
+else if (enemy_cheek) {
+    enemy.rect.x -= 5;
+    if (enemy.rect.x <= 1100) { // Marca como falso quando ultrapassa ou atinge o limite
+        enemy_cheek = false;
+    }
+} 
+
 
 else if(player.isOnground){
     // se o player estiver no chão
@@ -89,14 +122,17 @@ if(IsKeyDown(KEY_SPACE) && player.isOnground){
     player.velocity.y = jumpforce;
     player.isOnground = false;
 }
-cout << player.velocity.x << "\n";
+cout << enemy.rect.x << "\n";
 
+//desh
 if(IsKeyPressed(KEY_Q)){
+    if(amount_desh > 0){
+    amount_desh -= 1;
     float desh = 250.0f;
     switch (key_direction){
         case 'A':
             if(IsKeyDown(KEY_W)){
-                player.velocity.y -= desh;
+                player.velocity.y = jumpforce;
                 player.isOnground = false;
             }
                 player.rect.x -= desh;
@@ -104,7 +140,7 @@ if(IsKeyPressed(KEY_Q)){
         break;
         case 'D':
             if(IsKeyDown(KEY_W)){
-                player.velocity.y -= desh;
+                player.velocity.y = jumpforce;
                 player.isOnground = false;
 
             }
@@ -116,21 +152,41 @@ if(IsKeyPressed(KEY_Q)){
         
     }
 }
-
-if(CheckCollisionRecs(player.rect, ground)){
-    player.rect.y = ground.y - player.rect.height;
-    player.velocity.y = 0;
-    player.isOnground = true;
 }
+
+for(const auto& ground : grounds){
+    if(CheckCollisionRecs(player.rect, ground)){
+        player.rect.y = ground.y - player.rect.height;
+        player.velocity.y = 0;
+        player.isOnground = true;
+    }
+}
+
 
 player.rect.y += player.velocity.y * dt; // pasando as info do pulo para o rect.y para ter a vizualização e animação!
 player.rect.x += player.velocity.x*dt;
 
-if(player.rect.y > 890){
+if(player.rect.y > screenheight + 75){
     //morrer por queda
+    BeginDrawing();
+    ClearBackground(RED);
+    EndDrawing();
+    deaths += 1;
+    amount_desh = 3;
     player.rect.x = 100;
     player.rect.y =  screenheight - 60;
 }
+//morrer pelo inimigo
+if(CheckCollisionRecs(player.rect, enemy.rect)){
+    BeginDrawing();
+    ClearBackground(RED);
+    EndDrawing();
+    deaths += 1;
+    amount_desh = 3;
+    player.rect.x = 100;
+    player.rect.y =  screenheight - 60;
+}
+
 
 float margin = 100.0f;
 Vector2 cameraTarget = camera.target;
@@ -143,12 +199,21 @@ camera.target = Vector2Lerp(camera.target, cameraTarget, 0.1f);
 
 
 BeginDrawing();
-ClearBackground(RAYWHITE);
+ClearBackground(SKYBLUE);
 
 BeginMode2D(camera);
-DrawRectangle(150,50,150,150, RED);
-DrawRectangleRec(ground, GREEN);
+//(TextFormat("PosX: %03.0f", position)
+DrawText(TextFormat("desh: %d", amount_desh),camera.target.x - screenwidth/2+10, camera.target.y - 90,40, RED);
+DrawText(TextFormat("mortes: %d", deaths), camera.target.x - screenwidth/2+10, camera.target.y , 40, RED);
+
+DrawCircle(150,50, 80, YELLOW);
+for(const auto& ground : grounds){
+    DrawRectangleRec(ground, GREEN);
+}
 DrawRectangleRec(player.rect, BLUE);
+DrawRectangleRec(enemy.rect, RED);
+DrawText("aparte Q para dar um desh",0,400,25,BLACK);
+DrawText("você tem 3 desh por fase!",0, 450,25,BLACK);
 
 EndDrawing();
 }
