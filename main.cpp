@@ -7,6 +7,8 @@
 
 int currentphase = 1;
 
+int respawn = 100;
+
 void updatephase1();
 void updatephase2();
 
@@ -46,10 +48,6 @@ int main(){
     if(currentphase == 1){
         updatephase1();
     }
-    else if(currentphase == 2){
-        updatephase2();
-    }
-
 }
     //array para adicionar todos os chão ao mesmo tempo!
 
@@ -141,7 +139,6 @@ void updatephase1(){ //fase 1
         player.velocity.y = jumpforce;
         player.isOnground = false;
     }
-    cout << enemy.rect.x << "\n";
 
     //desh
     if(IsKeyPressed(KEY_Q)){
@@ -180,12 +177,7 @@ void updatephase1(){ //fase 1
             player.isOnground = true;
         }
     }
-    if(player.rect.x >= 1740){
-        currentphase = 2;
-        BeginDrawing();
-        ClearBackground(BLACK);
-        EndDrawing();
-    }
+   
 
 
     player.rect.y += player.velocity.y * dt; // pasando as info do pulo para o rect.y para ter a vizualização e animação!
@@ -198,8 +190,8 @@ void updatephase1(){ //fase 1
         EndDrawing();
         deaths += 1;
         amount_desh = 3;
-        player.rect.x = 100;
-        player.rect.y =  screenheight - 60;
+        player.rect.x = respawn;
+        player.rect.y = 825;
     }
     //morrer pelo inimigo
     if(CheckCollisionRecs(player.rect, enemy.rect)){
@@ -221,7 +213,33 @@ void updatephase1(){ //fase 1
     if (player.rect.x > camera.target.x + margin) cameraTarget.x = player.rect.x - margin;
 
     camera.target = Vector2Lerp(camera.target, cameraTarget, 0.1f);
+    cout << player.rect.x << "\n";
 
+    if(player.rect.x >= 1740 && player.rect.y == 825){
+        //fase 2!!!!
+        amount_desh = 3;
+        enemy.rect.y = 999;
+        respawn = 1740;
+        grounds.clear();
+        grounds.push_back({1740,885, 300, 15});
+        grounds.push_back({2340, 885, player.rect.width,15});
+
+
+        if(player.rect.x >= 2291 && player.rect.x <= 2387 && player.rect.y == 825){
+            grounds.pop_back();
+            grounds.push_back({2700, 885, player.rect.width, 15});
+
+        }
+        if(player.rect.x >= 2650 && player.rect.x <= 2750 && player.rect.y == 825){
+            grounds.pop_back();
+            grounds.push_back({3000,885, player.rect.width, 15});
+        }
+        if(player.rect.x >= 2950 && player.rect.x <= 3050 && player.rect.y == 825){
+            grounds.pop_back();
+        }
+        
+
+    }
 
     BeginDrawing();
     ClearBackground(SKYBLUE);
@@ -239,14 +257,9 @@ void updatephase1(){ //fase 1
     DrawRectangleRec(enemy.rect, RED);
     DrawText("aparte Q para dar um desh",0,400,25,BLACK);
     DrawText("você tem 3 desh por fase!",0, 450,25,BLACK);
-
     EndDrawing();
     }
+       
 
-    CloseWindow();
 }
 
-void updatephase2(){
-    grounds.push_back({0,580,850,15});
-}
-//player.isOnGround = true/false, se esta no chão no momento,
