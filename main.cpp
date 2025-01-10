@@ -3,17 +3,43 @@
 #include <vector>
 #include <limits>   
 
-//fazer uma maneira de apagar as estruturas passadas!!!!, e criar novas se passar de fase
-
-int currentphase = 1;
-
-int respawn = 100;
-
-void updatephase1();
-void updatephase2();
-
 using namespace std;
-//ver depois isso como funciona!!!!
+
+int deaths = 0;
+int amount_desh = 3;
+const int screenwidth = 1600;
+const int screenheight = 900;
+const float gravidade = 550.0f;
+const float jumpforce = 300.0f;
+const float dash_distance = 250.0f;
+const float movespeed = 6000.0f;
+const float horizontaldrag = 400.0f;//força do efeito de parar gradativamente!
+
+
+//fazer uma maneira de apagar as estruturas passadas!!!!, e criar novas se passar de fase
+struct Player{
+    Rectangle rect;
+    Vector2 velocity;
+    bool isOnground;
+};
+struct Enemy{
+    Rectangle rect;
+    bool movingright;
+};
+
+struct GameState{
+    int currentPhase;
+    int deaths;
+    int respawn;
+    int dashCount;
+};
+
+//variaveis globais!
+GameState gamestate = {1,0,100,3};
+vector<Rectangle> grounds;
+Player player;
+Enemy enemy;
+
 Vector2 Vector2Lerp(Vector2 start, Vector2 end, float alpha) {
     return (Vector2){
         start.x + alpha * (end.x - start.x),
@@ -21,73 +47,33 @@ Vector2 Vector2Lerp(Vector2 start, Vector2 end, float alpha) {
         };
 }
 
-struct player{
-    Rectangle rect;
-    Vector2 velocity;
-    bool isOnground;
-};
-struct enemy{
-    Rectangle rect;
-};
+void logicagame(float dt){
+    if(IsKeyDown(KEY_D)){
+        //mover para direita
+        player.velocity.x += movespeed*dt;
+        if(player.velocity.x >= 300) player.velocity.x = 300;
+    }
+    if(IsKeyDown(KEY_A)){
+        //mover para a esquerda
+        player.velocity.x -= movespeed*dt;
+        if(player.velocity.x <= -300) player.velocity.x = -300;
+    }
+    if(IsKeyDown(KEY_SPACE) && player.isOnground){
+        //pulo
+        player.velocity.y -= jumpforce;
+        player.isOnground = false;
+    }
 
-vector<Rectangle> grounds = {
-    //  posX, posY, width, height
-        {}//cada linha é um chão, jeito mais facil que eu vi para ver isso!
-    };
-
-int deaths = 0;
-int amount_desh = 3;
-
-char key_direction = 'i';
-const int screenwidth = 1600;
-const int screenheight = 900;
-
-
-//width, height = largura, altura
-int main(){
-    if(currentphase == 1){
-        updatephase1();
+    //desh
+    if(IsKeyPressed(KEY_Q) && gamestate.dashCount > 0){
+        gamestate.dashCount--;
+        player.rect.x += (IsKeyDown(KEY_D) ? dash_distance : -dash_distance);
     }
 }
-    //array para adicionar todos os chão ao mesmo tempo!
 
 
-void updatephase1(){ //fase 1
-
-   
-
-    grounds.push_back({0,880,850,15});
-    grounds.push_back({1090, 885, 350, 15});
-    grounds.push_back({1740,885, 300, 15}); // gool
-    InitWindow(screenwidth, screenheight, "game-2d-teste");
-
-    enemy enemy = {1100, 825, 50,60};
-
-    player player = {{100, screenheight - 60, 50,60},{0,0}, true};
-    const float gravidade = 550.0f;
-    const float jumpforce = 300.0f;
-    const float movespeed = 6000.0f;
-    const float horizontaldrag = 400.0f;//força do efeito de parar gradativamente!
-    Vector2 playerposition = {player.rect.x, player.rect.y};
-
-
-
-    // config da camera 2d
-    Camera2D camera = { 0 };
-    camera.target = playerposition;
-    camera.offset = (Vector2){screenwidth/2.0f, 840};
-    camera.rotation = 0.0f;          // Sem rotação
-    camera.zoom = 1.0f;
-
-    bool enemy_cheek = false;
-
-    SetTargetFPS(60);
-    while (!WindowShouldClose()){
-        //main loop
-    float dt = GetFrameTime();// tudo que for usar a velocidade e etc usar o *dt 
-
-
-
+void physics(float dt){
+    //tudo que for da gravidade e etc, é aqui!
     player.velocity.y += gravidade*dt;//gravidade do game
 
     // fazer o efeito de parar gradativamente
@@ -99,76 +85,10 @@ void updatephase1(){ //fase 1
     else if(player.velocity.x < 0){
         player.velocity.x += horizontaldrag*dt*2;
         if(player.velocity.x > 0) player.velocity.x = 0;
-
-    }
-    //movimentação do inimigo
-    if (!enemy_cheek) { 
-        enemy.rect.x += 5; 
-        if (enemy.rect.x >= 1340) { // Marca como verdadeiro quando ultrapassa ou atinge o limite
-            enemy_cheek = true; 
-        }
-    }
-    else if (enemy_cheek) {
-        enemy.rect.x -= 5;
-        if (enemy.rect.x <= 1100) { // Marca como falso quando ultrapassa ou atinge o limite
-            enemy_cheek = false;
-        }
-    } 
-
-
-    else if(player.isOnground){
-        // se o player estiver no chão
-        cout << "player ground!" << "\n";
     }
 
-    if(IsKeyDown(KEY_D)){
-        //mover para direita
-        key_direction = 'D';
-        player.velocity.x += movespeed*dt;
-        if(player.velocity.x >= 300) player.velocity.x = 300;
-    }
-    if(IsKeyDown(KEY_A)){
-        //mover para a esquerda
-        key_direction = 'A';
-        player.velocity.x -= movespeed*dt;
-        if(player.velocity.x <= -300) player.velocity.x = -300;
-    }
-    if(IsKeyDown(KEY_SPACE) && player.isOnground){
-        //pulo
-        cout << "space on" << "\n";
-        player.velocity.y -= jumpforce;
-        player.isOnground = false;
-    }
-
-    //desh
-    if(IsKeyPressed(KEY_Q)){
-        if(amount_desh > 0){
-        amount_desh -= 1;
-        float desh = 250.0f;
-        switch (key_direction){
-            case 'A':
-                if(IsKeyDown(KEY_W)){
-                    player.velocity.y -= jumpforce/2;
-                    player.isOnground = false;
-                }
-                    player.rect.x -= desh;
-                
-            break;
-            case 'D':
-                if(IsKeyDown(KEY_W)){
-                    player.velocity.y -= jumpforce/2;
-                    player.isOnground = false;
-
-                }
-                player.rect.x += desh;
-            break;
-            case 'i':
-                cout << "inital" << "\n";
-            break;
-            
-        }
-    }
-    }
+    player.rect.y += player.velocity.y*dt; // pasando as info do pulo para o rect.y para ter a vizualização e animação!
+    player.rect.x += player.velocity.x*dt;
 
     for(const auto& ground : grounds){
         if(CheckCollisionRecs(player.rect, ground)){
@@ -177,98 +97,134 @@ void updatephase1(){ //fase 1
             player.isOnground = true;
         }
     }
-   
-
-
-    player.rect.y += player.velocity.y * dt; // pasando as info do pulo para o rect.y para ter a vizualização e animação!
-    player.rect.x += player.velocity.x*dt;
 
     if(player.rect.y > screenheight + 75){
         //morrer por queda
-        BeginDrawing();
-        ClearBackground(RED);
-        EndDrawing();
-        deaths += 1;
-        amount_desh = 3;
-        player.rect.x = respawn;
-        player.rect.y = 825;
+        gamestate.deaths++;
+        gamestate.dashCount = 3;
+        player.rect.x = gamestate.respawn;
+        player.rect.y = 440;
     }
-    //morrer pelo inimigo
+}
+
+void UpadateEnemy(){
+    if (enemy.movingright) { 
+        enemy.rect.x += 5; 
+        if (enemy.rect.x >= 1390) enemy.movingright = false; 
+    } else{
+        enemy.rect.x -= 5;
+        if (enemy.rect.x <= 1090) enemy.movingright = true;
+    } 
+
     if(CheckCollisionRecs(player.rect, enemy.rect)){
-        BeginDrawing();
-        ClearBackground(RED);
-        EndDrawing();
-        deaths += 1;
-        amount_desh = 3;
-        player.rect.x = 100;
-        player.rect.y =  screenheight - 60;
+        gamestate.deaths++;
+        gamestate.dashCount = 3;
+        player.rect.x = gamestate.respawn;
+        player.rect.y = 440;
     }
+}
 
-
-    float margin = 100.0f;
-    Vector2 cameraTarget = camera.target;
-
-    playerposition = {player.rect.x, 840};
-    if (player.rect.x < camera.target.x - margin) cameraTarget.x = player.rect.x + margin;
-    if (player.rect.x > camera.target.x + margin) cameraTarget.x = player.rect.x - margin;
-
-    camera.target = Vector2Lerp(camera.target, cameraTarget, 0.1f);
-    cout << player.rect.x << "\n";
-
-    if(player.rect.x >= 1740 && player.rect.y == 825){
-        //fase 2!!!!
-        amount_desh = 3;
-        enemy.rect.y = 999;
-        respawn = 1740;
-        grounds.clear();
-        grounds.push_back({1740,885, 300, 15});
-        grounds.push_back({2340, 885, player.rect.width,15});
-
-
-        if(player.rect.x >= 2291 && player.rect.x <= 2387 && player.rect.y == 825){
-            grounds.pop_back();
-            grounds.push_back({2700, 885, player.rect.width, 15});
-
-        }
-        if(player.rect.x >= 2650 && player.rect.x <= 2750 && player.rect.y == 825){
-            grounds.pop_back();
-            grounds.push_back({3000,885, player.rect.width, 15});
-        }
-        if(player.rect.x >= 2950 && player.rect.x <= 3050 && player.rect.y == 825){
-            grounds.pop_back();
-            grounds.push_back({3300, 885, player.rect.width, 15});
-        }
-        if(player.rect.x >= 3250 && player.rect.x <= 3350 && player.rect.y == 825){
-            grounds.pop_back();
-            player.velocity.y -= 1500;
-            grounds.push_back({6000, 885, 300, 15}); // gool
-        }
-
-    }
-    if(player.rect.x >= 5950 && player.rect.x <= 6050 && player.rect.y == 825){
-        //fase 2
-
-    }
-
+void Render(Camera2D &camera){
     BeginDrawing();
     ClearBackground(SKYBLUE);
 
     BeginMode2D(camera);
-    //(TextFormat("PosX: %03.0f", position)
-    DrawText(TextFormat("desh: %d", amount_desh),camera.target.x - screenwidth/2+10, camera.target.y - 90,40, RED);
-    DrawText(TextFormat("mortes: %d", deaths), camera.target.x - screenwidth/2+10, camera.target.y , 40, RED);
-
-    DrawCircle(camera.target.x-250, camera.target.y-650, 80, YELLOW);
-    for(const auto& ground : grounds){
+    for(const auto &ground : grounds){
         DrawRectangleRec(ground, GREEN);
     }
     DrawRectangleRec(player.rect, BLUE);
     DrawRectangleRec(enemy.rect, RED);
-    DrawText("aparte Q para dar um desh",0,400,25,BLACK);
-    DrawText("você tem 3 desh por fase!",0, 450,25,BLACK);
-    EndDrawing();
-    }
-       
 
+    EndMode2D();
+
+    DrawText(TextFormat("mortes: %d", gamestate.deaths), 10, 10,20, RED);
+    DrawText(TextFormat("dashes: %d",gamestate.dashCount), 10,40,20,RED);
+
+    EndDrawing();
 }
 
+void phase2(){
+    //fase 2!!!!
+    gamestate.dashCount = 3;
+    enemy.rect.y = 999;
+    gamestate.respawn = 1740;
+    grounds.clear();
+    grounds.push_back({1740,500, 300, 15});
+    grounds.push_back({2340, 500, player.rect.width,15});
+
+    while(true){
+
+    if(player.rect.x >= 2291 && player.rect.x <= 2387 && player.rect.y == 500){
+        grounds.pop_back();
+        grounds.push_back({2700, 500, player.rect.width, 15});
+
+    }
+    if(player.rect.x >= 2650 && player.rect.x <= 2750 && player.rect.y == 500){
+        grounds.pop_back();
+        grounds.push_back({3000,500, player.rect.width, 15});
+    }
+    if(player.rect.x >= 2950 && player.rect.x <= 3050 && player.rect.y == 500){
+        grounds.pop_back();
+        grounds.push_back({3300, 500, player.rect.width, 15});
+    }
+    if(player.rect.x >= 3250 && player.rect.x <= 3350 && player.rect.y == 500){
+        grounds.pop_back();
+        player.velocity.y -= 1500;
+        grounds.push_back({6000, 500, 300, 15}); // gool
+    }
+    }
+}
+
+void InitializePhase1() {
+    if(gamestate.currentPhase == 1){
+
+        grounds = {
+            {0, 500, 850, 20},
+            {1090, 500, 350, 20},
+            {1740, 500, 300, 20} // Goal
+        };
+        
+        player = {{100, 440, 50, 60}, {0, 0}, true};
+        enemy = {{1100, 440, 50, 60}, true};
+        gamestate.respawn = 100;
+        gamestate.dashCount = 3;
+        
+    }
+    
+}
+
+
+// if(player.rect.x >= 5950 && player.rect.x <= 6050 && player.rect.y == 825){
+    
+
+
+int main(){
+    InitWindow(screenwidth, screenheight, "game-2d");
+    SetTargetFPS(60);
+
+    InitializePhase1();
+
+
+    Camera2D camera = {0};
+    camera.offset = {screenwidth/2.0f, screenheight/2.0f};
+    camera.zoom = 1.0f;
+    
+    while(!WindowShouldClose()){
+        float dt = GetFrameTime(); 
+        logicagame(dt);
+        physics(dt);
+        UpadateEnemy();
+
+        if (player.rect.x >= 1740 && gamestate.currentPhase == 1) {
+            gamestate.currentPhase = 2;
+            phase2();
+        }
+        cout << player.rect.x << "\n";
+
+        camera.target = Vector2Lerp(camera.target, {player.rect.x, player.rect.y},0.1f);
+
+        Render(camera);
+    }
+    CloseWindow();
+    return 0;
+}
