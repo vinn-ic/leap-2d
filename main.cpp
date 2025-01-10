@@ -65,7 +65,7 @@ void updatephase1(){ //fase 1
 
     player player = {{100, screenheight - 60, 50,60},{0,0}, true};
     const float gravidade = 550.0f;
-    const float jumpforce = -300.0f;
+    const float jumpforce = 300.0f;
     const float movespeed = 6000.0f;
     const float horizontaldrag = 400.0f;//força do efeito de parar gradativamente!
     Vector2 playerposition = {player.rect.x, player.rect.y};
@@ -136,7 +136,7 @@ void updatephase1(){ //fase 1
     if(IsKeyDown(KEY_SPACE) && player.isOnground){
         //pulo
         cout << "space on" << "\n";
-        player.velocity.y = jumpforce;
+        player.velocity.y -= jumpforce;
         player.isOnground = false;
     }
 
@@ -148,7 +148,7 @@ void updatephase1(){ //fase 1
         switch (key_direction){
             case 'A':
                 if(IsKeyDown(KEY_W)){
-                    player.velocity.y = jumpforce;
+                    player.velocity.y -= jumpforce/2;
                     player.isOnground = false;
                 }
                     player.rect.x -= desh;
@@ -156,7 +156,7 @@ void updatephase1(){ //fase 1
             break;
             case 'D':
                 if(IsKeyDown(KEY_W)){
-                    player.velocity.y = jumpforce;
+                    player.velocity.y -= jumpforce/2;
                     player.isOnground = false;
 
                 }
@@ -236,8 +236,17 @@ void updatephase1(){ //fase 1
         }
         if(player.rect.x >= 2950 && player.rect.x <= 3050 && player.rect.y == 825){
             grounds.pop_back();
+            grounds.push_back({3300, 885, player.rect.width, 15});
         }
-        
+        if(player.rect.x >= 3250 && player.rect.x <= 3350 && player.rect.y == 825){
+            grounds.pop_back();
+            player.velocity.y -= 1500;
+            grounds.push_back({6000, 885, 300, 15}); // gool
+        }
+
+    }
+    if(player.rect.x >= 5950 && player.rect.x <= 6050 && player.rect.y == 825){
+        //fase 2
 
     }
 
@@ -249,7 +258,7 @@ void updatephase1(){ //fase 1
     DrawText(TextFormat("desh: %d", amount_desh),camera.target.x - screenwidth/2+10, camera.target.y - 90,40, RED);
     DrawText(TextFormat("mortes: %d", deaths), camera.target.x - screenwidth/2+10, camera.target.y , 40, RED);
 
-    DrawCircle(150,50, 80, YELLOW);
+    DrawCircle(camera.target.x-250, camera.target.y-650, 80, YELLOW);
     for(const auto& ground : grounds){
         DrawRectangleRec(ground, GREEN);
     }
