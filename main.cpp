@@ -39,6 +39,8 @@ GameState gamestate = {1,0,100,3};
 vector<Rectangle> grounds;
 Player player;
 Enemy enemy;
+int posplayer = player.rect.x;
+
 
 Vector2 Vector2Lerp(Vector2 start, Vector2 end, float alpha) {
     return (Vector2){
@@ -143,88 +145,89 @@ void Render(Camera2D &camera){
     EndDrawing();
 }
 
-void phase2(){
-    //fase 2!!!!
-    gamestate.dashCount = 3;
-    enemy.rect.y = 999;
-    gamestate.respawn = 1740;
-    grounds.clear();
-    grounds.push_back({1740,500, 300, 15});
-    grounds.push_back({2340, 500, player.rect.width,15});
-
-    while(true){
-
-    if(player.rect.x >= 2291 && player.rect.x <= 2387 && player.rect.y == 500){
-        grounds.pop_back();
-        grounds.push_back({2700, 500, player.rect.width, 15});
-
-    }
-    if(player.rect.x >= 2650 && player.rect.x <= 2750 && player.rect.y == 500){
-        grounds.pop_back();
-        grounds.push_back({3000,500, player.rect.width, 15});
-    }
-    if(player.rect.x >= 2950 && player.rect.x <= 3050 && player.rect.y == 500){
-        grounds.pop_back();
-        grounds.push_back({3300, 500, player.rect.width, 15});
-    }
-    if(player.rect.x >= 3250 && player.rect.x <= 3350 && player.rect.y == 500){
-        grounds.pop_back();
-        player.velocity.y -= 1500;
-        grounds.push_back({6000, 500, 300, 15}); // gool
-    }
-    }
-}
-
-void InitializePhase1() {
-    if(gamestate.currentPhase == 1){
-
-        grounds = {
-            {0, 500, 850, 20},
-            {1090, 500, 350, 20},
-            {1740, 500, 300, 20} // Goal
-        };
-        
-        player = {{100, 440, 50, 60}, {0, 0}, true};
-        enemy = {{1100, 440, 50, 60}, true};
-        gamestate.respawn = 100;
-        gamestate.dashCount = 3;
-        
-    }
-    
-}
-
-
-// if(player.rect.x >= 5950 && player.rect.x <= 6050 && player.rect.y == 825){
-    
-
-
+ 
 int main(){
     InitWindow(screenwidth, screenheight, "game-2d");
     SetTargetFPS(60);
-
-    InitializePhase1();
 
 
     Camera2D camera = {0};
     camera.offset = {screenwidth/2.0f, screenheight/2.0f};
     camera.zoom = 1.0f;
     
+    grounds = {
+        {0, 500, 850, 20},
+        {1090, 500, 350, 20},
+        {1740, 500, 300, 20} // Goal
+    };
+    player = {{100, 440, 50, 60}, {0, 0}, true};
+    enemy = {{1100, 440, 50, 60}, true};
+
+    gamestate.respawn = 100;
+    gamestate.dashCount = 3;
+
+    int lastPhase = gamestate.currentPhase; // Rastreamento da fase atual
+
     while(!WindowShouldClose()){
         float dt = GetFrameTime(); 
+
+        if (player.rect.x >= 1740 && player.rect.y == 440 && gamestate.currentPhase == 1) {
+            gamestate.currentPhase = 2; // Atualiza para a fase 2
+        }
+
+       if (gamestate.currentPhase != lastPhase) {
+            lastPhase = gamestate.currentPhase;
+
+            if (gamestate.currentPhase == 2) {
+                // Lógica inicial da fase 2
+                grounds.clear();
+                grounds.push_back({1740, 500, 300, 20});
+                grounds.push_back({2340, 500, player.rect.width, 15});
+                enemy.rect.y = 9999;
+                gamestate.respawn = 1760;
+
+            }
+        }grounds.push_back({2340, 500, player.rect.width,15});
+
+
+        if(gamestate.currentPhase == 2){
+            // Atualiza o terreno dinamicamente
+            if (player.rect.x >= 2290 && player.rect.x <= 2390 && player.rect.y == 440) {
+                grounds.push_back({2700, 500, player.rect.width, 15});
+                gamestate.respawn = 2340;
+            }
+            if (player.rect.x >= 2650 && player.rect.x <= 2750 && player.rect.y == 440) {
+                grounds.clear();
+                grounds.push_back({3000, 500, player.rect.width, 15});
+            }
+            if (player.rect.x >= 2950 && player.rect.x <= 3050 && player.rect.y == 440) {
+                grounds.clear();
+                grounds.push_back({3300, 500, player.rect.width, 15});
+            }
+            if (player.rect.x >= 3250 && player.rect.x <= 3350 && player.rect.y == 440) {
+                grounds.clear();
+                player.velocity.y -= 1500; // Faz o jogador pular
+                grounds.push_back({6000, 500, 300, 15}); // Goal
+            }
+        };
+        
+            
+        
+
+
+
         logicagame(dt);
         physics(dt);
         UpadateEnemy();
 
-        if (player.rect.x >= 1740 && gamestate.currentPhase == 1) {
-            gamestate.currentPhase = 2;
-            phase2();
-        }
-        cout << player.rect.x << "\n";
+        cout << player.rect.y << "\n";
 
         camera.target = Vector2Lerp(camera.target, {player.rect.x, player.rect.y},0.1f);
 
         Render(camera);
+      
     }
     CloseWindow();
     return 0;
 }
+    
