@@ -142,6 +142,13 @@ void Render(Camera2D &camera){
     DrawText(TextFormat("mortes: %d", gamestate.deaths), 10, 10,20, RED);
     DrawText(TextFormat("dashes: %d",gamestate.dashCount), 10,40,20,RED);
 
+    if (player.rect.x >= 1510 && player.rect.x <= 1990 && player.rect.y == 440) {
+        DrawText("fase 2!",650,240,45,RED);//
+    }
+    if (player.rect.x >= 4990 && player.rect.x <= 5250 && player.rect.y == 440) {
+        DrawText("fase 3!",650,240,45,RED);//
+
+    }
     EndDrawing();
 }
 
@@ -173,6 +180,7 @@ int main(){
 
         if (player.rect.x >= 1740 && player.rect.y == 440 && gamestate.currentPhase == 1) {
             gamestate.currentPhase = 2; // Atualiza para a fase 2
+            gamestate.dashCount = 3;
         }
 
        if (gamestate.currentPhase != lastPhase) {
@@ -207,10 +215,17 @@ int main(){
             if (player.rect.x >= 3250 && player.rect.x <= 3350 && player.rect.y == 440) {
                 grounds.clear();
                 player.velocity.y -= 1500; // Faz o jogador pular
-                grounds.push_back({6000, 500, 300, 15}); // Goal
+                grounds.push_back({5000, 500, 300, 15}); // Goal
+            }
+            if(player.rect.x >= 4850 && player.rect.x <= 5150 && player.rect.y == 440){
+                //fase
+                gamestate.currentPhase = 3;
             }
         };
-        
+        if(gamestate.currentPhase == 3){
+            //logica fase3
+            
+        }
             
         
 
@@ -220,7 +235,7 @@ int main(){
         physics(dt);
         UpadateEnemy();
 
-        cout << player.rect.y << "\n";
+        cout << player.rect.x << "\n";
 
         camera.target = Vector2Lerp(camera.target, {player.rect.x, player.rect.y},0.1f);
 
