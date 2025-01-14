@@ -5,8 +5,7 @@
 
 using namespace std;
 
-int deaths = 0;
-int amount_desh = 3;
+
 const int screenwidth = 1600;
 const int screenheight = 900;
 const float gravidade = 550.0f;
@@ -37,6 +36,7 @@ struct GameState{
 struct BoolGronds{
     bool plataformaS1;
     bool plataformaS2;
+    bool plataformaS3;
 };
 
 
@@ -45,7 +45,7 @@ GameState gamestate = {1,0,100,3};
 vector<Rectangle> grounds;
 Player player;
 Enemy enemy;
-BoolGronds boolgronds = {true, true};
+BoolGronds boolgronds = {true, true, true};
 int posplayer = player.rect.x;
 
 
@@ -149,6 +149,7 @@ void Render(Camera2D &camera){
     DrawText(TextFormat("mortes: %d", gamestate.deaths), 10, 10,20, RED);
     DrawText(TextFormat("dashes: %d",gamestate.dashCount), 10,40,20,RED);
 
+
     if (player.rect.x >= 1510 && player.rect.x <= 1990 && player.rect.y == 440) {
         DrawText("fase 2!",650,240,45,RED);//
     }
@@ -233,7 +234,7 @@ int main(){
                     {5400, 500, 150, 20},
                     {6000, 500, 150, 20},
                     {6600, 500, 150, 20},
-                    {7200, 500, 150, 20}
+                    {7800, 500, 300, 15}//gool
                     };
                     bool platarformaS1 = true;
 
@@ -243,12 +244,17 @@ int main(){
         if(gamestate.currentPhase == 3){
             //logica fase3
             gamestate.respawn = 5100;
-            if(player.rect.x >= grounds[1].x-75 && player.rect.x <= grounds[1].x+75 && player.rect.y == 440){
+            if(player.rect.x >= grounds[1].x-85 && player.rect.x <= grounds[1].x+85 && player.rect.y == 440){
                 if(boolgronds.plataformaS1) player.rect.x += 5;
                 else if(!boolgronds.plataformaS1) player.rect.x -= 5; 
             }
-            if(player.rect.x >= grounds[2].x-75 && player.rect.x <= grounds[2].x+75 && player.rect.y == 440){
+            if(player.rect.x >= grounds[2].x-85 && player.rect.x <= grounds[2].x+85 && player.rect.y == 440){
                 if(boolgronds.plataformaS2) player.rect.x += 5;
+                else if(!boolgronds.plataformaS2) player.rect.x -= 5;
+            }
+            if(player.rect.x >= grounds[3].x-85 && player.rect.x <= grounds[3].x+85 && player.rect.y == 440){
+                if(boolgronds.plataformaS3) player.rect.x += 5;
+                else if(!boolgronds.plataformaS3) player.rect.x -= 5;
             }
             
             if(boolgronds.plataformaS1){
@@ -270,6 +276,16 @@ int main(){
                 grounds[2].x -= 5;
                 if(grounds[2].x <= 6075) boolgronds.plataformaS2 = true;
             }
+
+            if(boolgronds.plataformaS3){
+                grounds[3].x += 5;
+
+                if(grounds[3].x >= 7500) boolgronds.plataformaS3 = false;
+            }
+            else if(!boolgronds.plataformaS3){
+                grounds[3].x -= 5;
+                if(grounds[3].x <= 6900) boolgronds.plataformaS3 = true;
+            }
         }
         
             
@@ -281,7 +297,6 @@ int main(){
         physics(dt);
         UpadateEnemy();
 
-        cout << grounds[1].x << "\n";
 
         camera.target = Vector2Lerp(camera.target, {player.rect.x, player.rect.y},0.1f);
 
