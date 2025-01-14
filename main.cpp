@@ -34,11 +34,18 @@ struct GameState{
     int dashCount;
 };
 
+struct BoolGronds{
+    bool plataformaS1;
+    bool plataformaS2;
+};
+
+
 //variaveis globais!
 GameState gamestate = {1,0,100,3};
 vector<Rectangle> grounds;
 Player player;
 Enemy enemy;
+BoolGronds boolgronds = {true, true};
 int posplayer = player.rect.x;
 
 
@@ -220,12 +227,51 @@ int main(){
             if(player.rect.x >= 4850 && player.rect.x <= 5150 && player.rect.y == 440){
                 //fase
                 gamestate.currentPhase = 3;
+                grounds.clear();
+                grounds = {
+                    {5000, 500, 300, 15},
+                    {5400, 500, 150, 20},
+                    {6000, 500, 150, 20},
+                    {6600, 500, 150, 20},
+                    {7200, 500, 150, 20}
+                    };
+                    bool platarformaS1 = true;
+
+
             }
         };
         if(gamestate.currentPhase == 3){
             //logica fase3
+            gamestate.respawn = 5100;
+            if(player.rect.x >= grounds[1].x-75 && player.rect.x <= grounds[1].x+75 && player.rect.y == 440){
+                if(boolgronds.plataformaS1) player.rect.x += 5;
+                else if(!boolgronds.plataformaS1) player.rect.x -= 5; 
+            }
+            if(player.rect.x >= grounds[2].x-75 && player.rect.x <= grounds[2].x+75 && player.rect.y == 440){
+                if(boolgronds.plataformaS2) player.rect.x += 5;
+            }
             
+            if(boolgronds.plataformaS1){
+                grounds[1].x += 5;
+
+                if(grounds[1].x >= 5925) boolgronds.plataformaS1 = false;
+            }
+            else if(!boolgronds.plataformaS1){
+                grounds[1].x -= 5;
+                if(grounds[1].x <= 5350) boolgronds.plataformaS1 = true;
+            }
+
+            if(boolgronds.plataformaS2){
+                grounds[2].x += 5;
+
+                if(grounds[2].x >= 6700) boolgronds.plataformaS2 = false;
+            }
+            else if(!boolgronds.plataformaS2){
+                grounds[2].x -= 5;
+                if(grounds[2].x <= 6075) boolgronds.plataformaS2 = true;
+            }
         }
+        
             
         
 
@@ -235,7 +281,7 @@ int main(){
         physics(dt);
         UpadateEnemy();
 
-        cout << player.rect.x << "\n";
+        cout << grounds[1].x << "\n";
 
         camera.target = Vector2Lerp(camera.target, {player.rect.x, player.rect.y},0.1f);
 
