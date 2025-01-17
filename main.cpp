@@ -319,14 +319,12 @@ int main(){
                 if(grounds[1].x <= 8190) boolgronds.plataformaS1 = true;
             }
 
-            if (player.rect.x >= grounds[1].x - 30 && player.rect.x <= grounds[1].x + 30) {
-                if (player.rect.y == 440) { // Player está em cima da plataforma
-                    grounds[1].y = 9999; // Plataforma "some" ao sair da tela
-                } else { // Player não está na altura da plataforma
-                    grounds[1].y = 500; // Plataforma volta para a posição original
-                }
-                }
-            //config plat1
+            if (player.rect.x >= grounds[1].x -60 && player.rect.x <= grounds[1].x+60 && player.rect.y >= 440) {
+                grounds[1].y = 9999;
+            }else{
+                grounds[1].y = 500;
+            }
+            //config plat1 end
 
             
             if(boolgronds.plataformaS2){
