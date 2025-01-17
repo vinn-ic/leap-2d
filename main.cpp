@@ -312,11 +312,11 @@ int main(){
             if(boolgronds.plataformaS1){
                 grounds[1].x += 5;
                 
-                if(grounds[1].x >= 8550) boolgronds.plataformaS1 = false;
+                if(grounds[1].x >= 8600) boolgronds.plataformaS1 = false;
             }else if(!boolgronds.plataformaS1) {
                 grounds[1].x -= 5;
                 
-                if(grounds[1].x <= 8190) boolgronds.plataformaS1 = true;
+                if(grounds[1].x <= 8200) boolgronds.plataformaS1 = true;
             }
 
             if (player.rect.x >= grounds[1].x -60 && player.rect.x <= grounds[1].x+60 && player.rect.y >= 440) {
@@ -330,10 +330,10 @@ int main(){
             if(boolgronds.plataformaS2){
                 grounds[2].x += 5; 
 
-                if(grounds[2].x >= 8850) boolgronds.plataformaS2 = false;
+                if(grounds[2].x >= 9200) boolgronds.plataformaS2 = false;
             }else if(!boolgronds.plataformaS2){
                 grounds[2].x -= 5;
-                if(grounds[2].x <= 8690) boolgronds.plataformaS2 = true;
+                if(grounds[2].x <= 8800) boolgronds.plataformaS2 = true;
             }
 
             if (player.rect.x >= grounds[2].x -60 && player.rect.x <= grounds[2].x+60 && player.rect.y >= 440) {
@@ -347,10 +347,10 @@ int main(){
             if(boolgronds.plataformaS3){
                 grounds[3].x += 5; 
 
-                if(grounds[3].x >= 9250) boolgronds.plataformaS3 = false;
+                if(grounds[3].x >= 9900) boolgronds.plataformaS3 = false;
             }else if(!boolgronds.plataformaS3){
                 grounds[3].x -= 5;
-                if(grounds[3].x <= 9090) boolgronds.plataformaS3 = true;
+                if(grounds[3].x <= 9400) boolgronds.plataformaS3 = true;
             }
 
             if (player.rect.x >= grounds[3].x -60 && player.rect.x <= grounds[3].x+60 && player.rect.y >= 440) {
