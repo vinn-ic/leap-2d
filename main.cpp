@@ -326,7 +326,7 @@ int main(){
             }
             //config plat1 end
 
-            
+            //config plat2
             if(boolgronds.plataformaS2){
                 grounds[2].x += 5; 
 
@@ -336,6 +336,14 @@ int main(){
                 if(grounds[2].x <= 8690) boolgronds.plataformaS2 = true;
             }
 
+            if (player.rect.x >= grounds[2].x -60 && player.rect.x <= grounds[2].x+60 && player.rect.y >= 440) {
+                grounds[2].y = 9999;
+            }else{
+                grounds[2].y = 500;
+            }
+            // config plat2 end
+
+            //config plat3
             if(boolgronds.plataformaS3){
                 grounds[3].x += 5; 
 
@@ -344,6 +352,13 @@ int main(){
                 grounds[3].x -= 5;
                 if(grounds[3].x <= 9090) boolgronds.plataformaS3 = true;
             }
+
+            if (player.rect.x >= grounds[3].x -60 && player.rect.x <= grounds[3].x+60 && player.rect.y >= 440) {
+                grounds[3].y = 9999;
+            }else{
+                grounds[3].y = 500;
+            }
+            // config plat3 end
 
         }
         
