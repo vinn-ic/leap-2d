@@ -171,9 +171,9 @@ int main(){
     camera.zoom = 1.0f;
     
     grounds = {
-        {0, 500, 850, 20},
+        {0, 500, 850, 20,},
         {1090, 500, 350, 20},
-        {1740, 500, 300, 20} // Goal
+        {1740, 500, 300, 20}, // Goal
     };
     player = {{100, 440, 50, 60}, {0, 0}, true};
     enemy = {{1100, 440, 50, 60}, true};
@@ -197,8 +197,10 @@ int main(){
             if (gamestate.currentPhase == 2) {
                 // Lógica inicial da fase 2
                 grounds.clear();
-                grounds.push_back({1740, 500, 300, 20});
-                grounds.push_back({2340, 500, player.rect.width, 15});
+                grounds = {
+                    {1740, 500, 300, 20},
+                    {2340, 500, player.rect.width, 15}
+                };
                 enemy.rect.y = 9999;
                 gamestate.respawn = 1760;
 
@@ -236,8 +238,6 @@ int main(){
                     {6600, 500, 150, 20},
                     {7800, 500, 300, 15}//gool
                     };
-                    bool platarformaS1 = true;
-
 
             }
         };
@@ -286,13 +286,75 @@ int main(){
                 grounds[3].x -= 5;
                 if(grounds[3].x <= 6900) boolgronds.plataformaS3 = true;
             }
+
+            if(player.rect.x >= 7650 && player.rect.x <= 7950 && player.rect.y == 440){
+                boolgronds.plataformaS1 = true;
+                boolgronds.plataformaS2 = true;
+                boolgronds.plataformaS3 = true;
+                //fase 4
+                gamestate.dashCount = 3;
+                gamestate.respawn = 7850;
+                grounds.clear();
+                grounds = {
+                    {7800, 500, 300, 15},
+                    {7900, 500, 60, 15},
+                    {8100, 500, 60, 15},
+                    {8600, 500, 60, 15}
+                    
+                };
+                gamestate.currentPhase = 4;
+            }
+        }
+        if(gamestate.currentPhase == 4){
+            //logica da fase4
+            
+            //config plat1
+            if(boolgronds.plataformaS1){
+                grounds[1].x += 5;
+                
+                if(grounds[1].x >= 8550) boolgronds.plataformaS1 = false;
+            }else if(!boolgronds.plataformaS1) {
+                grounds[1].x -= 5;
+                
+                if(grounds[1].x <= 8190) boolgronds.plataformaS1 = true;
+            }
+
+            if (player.rect.x >= grounds[1].x - 30 && player.rect.x <= grounds[1].x + 30) {
+                if (player.rect.y == 440) { // Player está em cima da plataforma
+                    grounds[1].y = 9999; // Plataforma "some" ao sair da tela
+                } else { // Player não está na altura da plataforma
+                    grounds[1].y = 500; // Plataforma volta para a posição original
+                }
+                }
+            //config plat1
+
+            
+            if(boolgronds.plataformaS2){
+                grounds[2].x += 5; 
+
+                if(grounds[2].x >= 8850) boolgronds.plataformaS2 = false;
+            }else if(!boolgronds.plataformaS2){
+                grounds[2].x -= 5;
+                if(grounds[2].x <= 8690) boolgronds.plataformaS2 = true;
+            }
+
+            if(boolgronds.plataformaS3){
+                grounds[3].x += 5; 
+
+                if(grounds[3].x >= 9250) boolgronds.plataformaS3 = false;
+            }else if(!boolgronds.plataformaS3){
+                grounds[3].x -= 5;
+                if(grounds[3].x <= 9090) boolgronds.plataformaS3 = true;
+            }
+
         }
         
             
         
 
 
-
+        cout << player.rect.y << "\n";
+        gamestate.dashCount += 1;
         logicagame(dt);
         physics(dt);
         UpadateEnemy();
