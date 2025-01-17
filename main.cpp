@@ -45,6 +45,7 @@ GameState gamestate = {1,0,100,3};
 vector<Rectangle> grounds;
 Player player;
 Enemy enemy;
+Enemy enemy2;
 BoolGronds boolgronds = {true, true, true};
 int posplayer = player.rect.x;
 
@@ -131,6 +132,12 @@ void UpadateEnemy(){
         player.rect.x = gamestate.respawn;
         player.rect.y = 440;
     }
+    if(CheckCollisionRecs(player.rect, enemy2.rect)){
+        gamestate.deaths++;
+        gamestate.dashCount = 3;
+        player.rect.x = gamestate.respawn;
+        player.rect.y = 440;
+    }
 }
 
 void Render(Camera2D &camera){
@@ -143,6 +150,7 @@ void Render(Camera2D &camera){
     }
     DrawRectangleRec(player.rect, BLUE);
     DrawRectangleRec(enemy.rect, RED);
+    DrawRectangleRec(enemy2.rect, RED);
 
     EndMode2D();
 
@@ -177,6 +185,7 @@ int main(){
     };
     player = {{100, 440, 50, 60}, {0, 0}, true};
     enemy = {{1100, 440, 50, 60}, true};
+    enemy2 = {{10000, 440, 50, 60}};
 
     gamestate.respawn = 100;
     gamestate.dashCount = 3;
@@ -299,7 +308,8 @@ int main(){
                     {7800, 500, 300, 15},
                     {7900, 500, 60, 15},
                     {8100, 500, 60, 15},
-                    {8600, 500, 60, 15}
+                    {8600, 500, 60, 15},
+                    {10000, 500, 600, 15}//enemy2
                     
                 };
                 gamestate.currentPhase = 4;
@@ -359,7 +369,18 @@ int main(){
                 grounds[3].y = 500;
             }
             // config plat3 end
+            
+            //config enemy2
 
+            if(enemy2.rect.x >= player.rect.x && enemy2.rect.x > grounds[4].x){
+                enemy2.rect.x -= 7;
+                
+            }
+            else if(enemy2.rect.x <= player.rect.x && enemy2.rect.x < grounds[4].x + 550){
+                enemy2.rect.x += 7;
+            }
+
+            //config enemy2 end
         }
         
             
