@@ -73,7 +73,9 @@ void logicagame(float dt){
         player.velocity.y -= jumpforce;
         player.isOnground = false;
     }
-
+    if(IsKeyDown(KEY_W)){
+        player.rect.y -= 100;
+    }
     //desh
     if(IsKeyPressed(KEY_Q) && gamestate.dashCount > 0){
         gamestate.dashCount--;
@@ -144,13 +146,17 @@ void Render(Camera2D &camera){
     BeginDrawing();
     ClearBackground(SKYBLUE);
 
+
     BeginMode2D(camera);
+    DrawCircle(camera.target.x-400,camera.target.y-300,80,YELLOW);
+
     for(const auto &ground : grounds){
         DrawRectangleRec(ground, GREEN);
     }
     DrawRectangleRec(player.rect, BLUE);
     DrawRectangleRec(enemy.rect, RED);
     DrawRectangleRec(enemy2.rect, RED);
+
 
     EndMode2D();
 
@@ -163,7 +169,9 @@ void Render(Camera2D &camera){
     }
     if (player.rect.x >= 4990 && player.rect.x <= 5250 && player.rect.y == 440) {
         DrawText("fase 3!",650,240,45,RED);//
-
+    }
+    if(player.rect.x >= 7800 && player.rect.x <= 8100 && player.rect.y == 440){
+        DrawText("fase 4!",650,240,45,RED);
     }
     EndDrawing();
 }
@@ -185,7 +193,7 @@ int main(){
     };
     player = {{100, 440, 50, 60}, {0, 0}, true};
     enemy = {{1100, 440, 50, 60}, true};
-    enemy2 = {{10000, 440, 50, 60}};
+    enemy2 = {{10520, 440, 50, 60}};
 
     gamestate.respawn = 100;
     gamestate.dashCount = 3;
@@ -253,15 +261,15 @@ int main(){
         if(gamestate.currentPhase == 3){
             //logica fase3
             gamestate.respawn = 5100;
-            if(player.rect.x >= grounds[1].x-85 && player.rect.x <= grounds[1].x+85 && player.rect.y == 440){
+            if(player.rect.x >= grounds[1].x && player.rect.x <= grounds[1].x+300 && player.rect.y == 440){
                 if(boolgronds.plataformaS1) player.rect.x += 5;
                 else if(!boolgronds.plataformaS1) player.rect.x -= 5; 
             }
-            if(player.rect.x >= grounds[2].x-85 && player.rect.x <= grounds[2].x+85 && player.rect.y == 440){
+            if(player.rect.x >= grounds[2].x && player.rect.x <= grounds[2].x+300 && player.rect.y == 440){
                 if(boolgronds.plataformaS2) player.rect.x += 5;
                 else if(!boolgronds.plataformaS2) player.rect.x -= 5;
             }
-            if(player.rect.x >= grounds[3].x-85 && player.rect.x <= grounds[3].x+85 && player.rect.y == 440){
+            if(player.rect.x >= grounds[3].x && player.rect.x <= grounds[3].x+300 && player.rect.y == 440){
                 if(boolgronds.plataformaS3) player.rect.x += 5;
                 else if(!boolgronds.plataformaS3) player.rect.x -= 5;
             }
@@ -301,7 +309,7 @@ int main(){
                 boolgronds.plataformaS2 = true;
                 boolgronds.plataformaS3 = true;
                 //fase 4
-                gamestate.dashCount = 3;
+                gamestate.dashCount = 4;
                 gamestate.respawn = 7850;
                 grounds.clear();
                 grounds = {
@@ -309,8 +317,8 @@ int main(){
                     {7900, 500, 60, 15},
                     {8100, 500, 60, 15},
                     {8600, 500, 60, 15},
-                    {10000, 500, 600, 15}//enemy2
-                    
+                    {10000, 500, 600, 15},//enemy2
+                    {10900, 500, 300, 15},//gool
                 };
                 gamestate.currentPhase = 4;
             }
@@ -371,24 +379,21 @@ int main(){
             // config plat3 end
             
             //config enemy2
-
-            if(enemy2.rect.x >= player.rect.x && enemy2.rect.x > grounds[4].x){
-                enemy2.rect.x -= 7;
-                
+            if(player.rect.x >= grounds[4].x && player.rect.x <= grounds[4].x+600){
+                if(enemy2.rect.x >= player.rect.x && enemy2.rect.x > grounds[4].x){
+                        enemy2.rect.x -= 4;
+                    
+                }
+                else if(enemy2.rect.x <= player.rect.x && enemy2.rect.x < grounds[4].x + 550){
+                    enemy2.rect.x += 4;
+                }
             }
-            else if(enemy2.rect.x <= player.rect.x && enemy2.rect.x < grounds[4].x + 550){
-                enemy2.rect.x += 7;
-            }
-
             //config enemy2 end
         }
         
-            
+
+        cout << enemy2.rect.x << "\n";
         
-
-
-        cout << player.rect.y << "\n";
-        gamestate.dashCount += 1;
         logicagame(dt);
         physics(dt);
         UpadateEnemy();
