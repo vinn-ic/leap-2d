@@ -76,10 +76,10 @@ void logicagame(float dt){
     }
     //desh
     if(IsKeyPressed(KEY_Q) && gamestate.dashCount > 0){
-        if(IsKeyPressed(KEY_A)){
+        if(IsKeyDown(KEY_A)){
             player.rect.x -= dash_distance;
             gamestate.dashCount--;
-        }if(IsKeyPressed(KEY_D)){
+        }if(IsKeyDown(KEY_D)){
             player.rect.x += dash_distance;
             gamestate.dashCount--;
         }
