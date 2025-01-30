@@ -219,33 +219,43 @@ int main(){
                 grounds.clear();
                 grounds = {
                     {1740, 500, 300, 20},
-                    {2340, 500, player.rect.width, 15}
+                    {2340, 500, player.rect.width, 15},
+                    {2700, 500, player.rect.width, 15},
+                    {3000, 500, player.rect.width, 15},
+                    {3300, 500, player.rect.width, 15},
+                    {5000, 500, 300, 15}
+
                 };
                 enemy.rect.y = 9999;
                 gamestate.respawn = 1760;
 
             }
-        }grounds.push_back({2340, 500, player.rect.width,15});
+        }
 
 
         if(gamestate.currentPhase == 2){
             // Atualiza o terreno dinamicamente
-            if (player.rect.x >= 2290 && player.rect.x <= 2390 && player.rect.y == 440) {
-                grounds.push_back({2700, 500, player.rect.width, 15});
-                gamestate.respawn = 2340;
+            if (player.rect.x >= grounds[1].x-60 && player.rect.x <= grounds[1].x+60 && player.rect.y >= 440) {
+                //1
+                grounds[1].y = 9999;
+            }else{
+                grounds[1].y = 500;
             }
-            if (player.rect.x >= 2650 && player.rect.x <= 2750 && player.rect.y == 440) {
-                grounds.clear();
-                grounds.push_back({3000, 500, player.rect.width, 15});
+            if (player.rect.x >= grounds[2].x-60 && player.rect.x <= grounds[2].x+60 && player.rect.y >= 440) {
+                grounds[2].y = 9999;
+            }else{
+                grounds[2].y = 500;
             }
-            if (player.rect.x >= 2950 && player.rect.x <= 3050 && player.rect.y == 440) {
-                grounds.clear();
-                grounds.push_back({3300, 500, player.rect.width, 15});
+            if (player.rect.x >= grounds[3].x-60 && player.rect.x <= grounds[3].x+60 && player.rect.y >= 440) {
+                grounds[3].y = 9999;
+            }else{
+                grounds[3].y = 500;
             }
-            if (player.rect.x >= 3250 && player.rect.x <= 3350 && player.rect.y == 440) {
-                grounds.clear();
+            if (player.rect.x >= grounds[4].x-60 && player.rect.x <= grounds[4].x+60 && player.rect.y >= 440) {
                 player.velocity.y -= 1500; // Faz o jogador pular
-                grounds.push_back({5000, 500, 300, 15}); // Goal
+                grounds[4].y = 9999;
+            }else{
+                grounds[4].y = 500;
             }
             if(player.rect.x >= 4850 && player.rect.x <= 5150 && player.rect.y == 440){
                 //fase
@@ -395,7 +405,6 @@ int main(){
         }
         
 
-        cout << enemy2.rect.x << "\n";
         
         logicagame(dt);
         physics(dt);
