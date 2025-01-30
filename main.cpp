@@ -57,6 +57,7 @@ Vector2 Vector2Lerp(Vector2 start, Vector2 end, float alpha) {
         };
 }
 
+
 void logicagame(float dt){
     if(IsKeyDown(KEY_D)){
         //mover para direita
@@ -73,13 +74,15 @@ void logicagame(float dt){
         player.velocity.y -= jumpforce;
         player.isOnground = false;
     }
-    if(IsKeyDown(KEY_W)){
-        player.rect.y -= 100;
-    }
     //desh
     if(IsKeyPressed(KEY_Q) && gamestate.dashCount > 0){
-        gamestate.dashCount--;
-        player.rect.x += (IsKeyDown(KEY_D) ? dash_distance : -dash_distance);
+        if(IsKeyPressed(KEY_A)){
+            player.rect.x -= dash_distance;
+            gamestate.dashCount--;
+        }if(IsKeyPressed(KEY_D)){
+            player.rect.x += dash_distance;
+            gamestate.dashCount--;
+        }
     }
 }
 
