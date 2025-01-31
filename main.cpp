@@ -1,7 +1,8 @@
 #include "raylib.h"
 #include <iostream>
 #include <vector>
-#include <limits>   
+#include <limits>  
+#include <string> 
 
 using namespace std;
 
@@ -31,6 +32,7 @@ struct GameState{
     int deaths;
     int respawn;
     int dashCount;
+    bool loby;
 };
 
 struct BoolGronds{
@@ -56,6 +58,7 @@ Vector2 Vector2Lerp(Vector2 start, Vector2 end, float alpha) {
         start.y + alpha * (end.y - start.y)
         };
 }
+
 
 
 void logicagame(float dt){
@@ -84,10 +87,15 @@ void logicagame(float dt){
             gamestate.dashCount--;
         }
     }
+    if(IsKeyPressed(KEY_CAPS_LOCK)){
+        gamestate.loby = false;
+    }
 }
 
 
 void physics(float dt){
+    if(gamestate.loby){
+
     //tudo que for da gravidade e etc, é aqui!
     player.velocity.y += gravidade*dt;//gravidade do game
 
@@ -119,7 +127,8 @@ void physics(float dt){
         gamestate.dashCount = 3;
         player.rect.x = gamestate.respawn;
         player.rect.y = 440;
-    }
+    }    
+}
 }
 
 void UpadateEnemy(){
@@ -146,37 +155,69 @@ void UpadateEnemy(){
 }
 
 void Render(Camera2D &camera){
-    BeginDrawing();
-    ClearBackground(SKYBLUE);
+    float porcento_game;
+
+    porcento_game = player.rect.x / 10900;
+    porcento_game = porcento_game*100;
 
 
-    BeginMode2D(camera);
-    DrawCircle(camera.target.x-400,camera.target.y-300,80,YELLOW);
+    if(!gamestate.loby){
+        BeginDrawing();
+        ClearBackground(SKYBLUE);
+        BeginMode2D(camera);
 
-    for(const auto &ground : grounds){
-        DrawRectangleRec(ground, GREEN);
+        DrawRectangle(camera.target.x-400, camera.target.y-300, 800,600,RAYWHITE);
+
+        DrawText("leap-2d",camera.target.x-60,camera.target.y-250,40,BLACK);
+        DrawText("O jogo mais difícil que você vai jogar hoje!", camera.target.x-195, camera.target.y-180,20,BLACK);
+        DrawText(TextFormat("mortes: %d",gamestate.deaths),camera.target.x-350, camera.target.y-100 ,20,BLACK);
+        DrawText(TextFormat("%.2f%%",porcento_game),camera.target.x-350,camera.target.y-75,20,BLACK);
+
+        DrawText("aperte 'ENTER' para começar!", camera.target.x-375, camera.target.y+250 ,20,BLACK);
+
+
+        if(IsKeyPressed(KEY_ENTER)){
+            gamestate.loby = true;
+        }
+
+        EndMode2D();
+        EndDrawing();
+        
+        
+    }else if(gamestate.loby){
+
+        BeginDrawing();
+        ClearBackground(SKYBLUE);
+
+        BeginMode2D(camera);
+
+        DrawCircle(camera.target.x-400,camera.target.y-300,80,YELLOW);
+
+        for(const auto &ground : grounds){
+            DrawRectangleRec(ground, GREEN);
+        }
+        DrawRectangleRec(player.rect, BLUE);
+        DrawRectangleRec(enemy.rect, RED);
+        DrawRectangleRec(enemy2.rect, RED);
+
+
+        EndMode2D();
+
+        DrawText(TextFormat("mortes: %d", gamestate.deaths), 10, 10,20, RED);
+        DrawText(TextFormat("dashes: %d",gamestate.dashCount), 10,40,20,RED);
+
+
+        if (player.rect.x >= 1510 && player.rect.x <= 1990 && player.rect.y == 440) {
+            DrawText("fase 2!",650,240,45,RED);//
+        }
+        if (player.rect.x >= 4990 && player.rect.x <= 5250 && player.rect.y == 440) {
+            DrawText("fase 3!",650,240,45,RED);//
+        }
+        if(player.rect.x >= 7800 && player.rect.x <= 8100 && player.rect.y == 440){
+            DrawText("fase 4!",650,240,45,RED);
+        }
+        EndDrawing();
     }
-    DrawRectangleRec(player.rect, BLUE);
-    DrawRectangleRec(enemy.rect, RED);
-    DrawRectangleRec(enemy2.rect, RED);
-
-
-    EndMode2D();
-
-    DrawText(TextFormat("mortes: %d", gamestate.deaths), 10, 10,20, RED);
-    DrawText(TextFormat("dashes: %d",gamestate.dashCount), 10,40,20,RED);
-
-
-    if (player.rect.x >= 1510 && player.rect.x <= 1990 && player.rect.y == 440) {
-        DrawText("fase 2!",650,240,45,RED);//
-    }
-    if (player.rect.x >= 4990 && player.rect.x <= 5250 && player.rect.y == 440) {
-        DrawText("fase 3!",650,240,45,RED);//
-    }
-    if(player.rect.x >= 7800 && player.rect.x <= 8100 && player.rect.y == 440){
-        DrawText("fase 4!",650,240,45,RED);
-    }
-    EndDrawing();
 }
 
  
@@ -194,7 +235,7 @@ int main(){
         {1090, 500, 350, 20},
         {1740, 500, 300, 20}, // Goal
     };
-    player = {{100, 440, 50, 60}, {0, 0}, true};
+    player = {{0, 400, 50, 60}, {0, 0}, true};
     enemy = {{1100, 440, 50, 60}, true};
     enemy2 = {{10520, 440, 50, 60}};
 
@@ -331,7 +372,7 @@ int main(){
                     {8100, 500, 60, 15},
                     {8600, 500, 60, 15},
                     {10000, 500, 600, 15},//enemy2
-                    {10900, 500, 300, 15},//gool
+                    {10900, 500, 300, 15},//gool até o momento o final do game
                 };
                 gamestate.currentPhase = 4;
             }
@@ -420,3 +461,4 @@ int main(){
     return 0;
 }
     
+// g++ main.cpp -o game-jump.exe -static -lraylib -lopengl32 -lgdi32 -lwinmm
