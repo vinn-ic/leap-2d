@@ -173,7 +173,7 @@ void Render(Camera2D &camera){
         DrawText(TextFormat("mortes: %d",gamestate.deaths),camera.target.x-350, camera.target.y-100 ,20,BLACK);
         DrawText(TextFormat("%.2f%%",porcento_game),camera.target.x-350,camera.target.y-75,20,BLACK);
 
-        DrawText("aperte 'ENTER' para começar!", camera.target.x-375, camera.target.y+250 ,20,BLACK);
+        DrawText("aperte 'ENTER' para começar! 'CAPS-LOCK' para pausar", camera.target.x-380, camera.target.y+250 ,20,BLACK);
 
 
         if(IsKeyPressed(KEY_ENTER)){
