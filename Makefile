@@ -5,8 +5,8 @@ TARGET = main.exe
 SRC = main.cpp
 
 # Caminhos e flags
-INCLUDE = -I"C:/raylib-master/src"
-LIBS = -L"C:/raylib-master/build/raylib" -lraylib -lopengl32 -lgdi32 -lwinmm
+INCLUDE = -I"C:/raylib/src"
+LIBS = -L"C:/raylib/build/raylib" -lraylib -lopengl32 -lgdi32 -lwinmm
 
 # Compilador
 CXX = g++

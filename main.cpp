@@ -11,7 +11,7 @@ const int screenwidth = 1600;
 const int screenheight = 900;
 const float gravidade = 550.0f;
 const float jumpforce = 300.0f;
-const float dash_distance = 250.0f;
+const float dash_distance = 150.0f;
 const float movespeed = 6000.0f;
 const float horizontaldrag = 400.0f;//força do efeito de parar gradativamente!
 
@@ -159,6 +159,9 @@ void Render(Camera2D &camera){
 
     porcento_game = player.rect.x / 10900;
     porcento_game = porcento_game*100;
+    if(porcento_game <= 0){
+        porcento_game = 0;
+    }
 
 
     if(!gamestate.loby){
@@ -169,10 +172,12 @@ void Render(Camera2D &camera){
         DrawRectangle(camera.target.x-400, camera.target.y-300, 800,600,RAYWHITE);
 
         DrawText("leap-2d",camera.target.x-60,camera.target.y-250,40,BLACK);
-        DrawText("O jogo mais difícil que você vai jogar hoje!", camera.target.x-195, camera.target.y-180,20,BLACK);
+        DrawText("by-vinin4:20", camera.target.x-195, camera.target.y-180,20,BLACK);
+
         DrawText(TextFormat("mortes: %d",gamestate.deaths),camera.target.x-350, camera.target.y-100 ,20,BLACK);
         DrawText(TextFormat("%.2f%%",porcento_game),camera.target.x-350,camera.target.y-75,20,BLACK);
 
+        DrawText("'Q'para dash", camera.target.x-380, camera.target.y+220,20,BLACK);
         DrawText("aperte 'ENTER' para começar! 'CAPS-LOCK' para pausar", camera.target.x-380, camera.target.y+250 ,20,BLACK);
 
 
@@ -205,6 +210,7 @@ void Render(Camera2D &camera){
 
         DrawText(TextFormat("mortes: %d", gamestate.deaths), 10, 10,20, RED);
         DrawText(TextFormat("dashes: %d",gamestate.dashCount), 10,40,20,RED);
+        DrawText(TextFormat("%.2f%%",porcento_game), 10, 70, 20, RED);
 
 
         if (player.rect.x >= 1510 && player.rect.x <= 1990 && player.rect.y == 440) {
@@ -215,6 +221,9 @@ void Render(Camera2D &camera){
         }
         if(player.rect.x >= 7800 && player.rect.x <= 8100 && player.rect.y == 440){
             DrawText("fase 4!",650,240,45,RED);
+        }
+        if(player.rect.x >= 10900 && player.rect.x <= 10900+300 && player.rect.y == 440){
+            DrawText("fase 5!",650,240,45,RED);
         }
         EndDrawing();
     }
@@ -245,6 +254,7 @@ int main(){
     int lastPhase = gamestate.currentPhase; // Rastreamento da fase atual
 
     while(!WindowShouldClose()){
+        cout << player.rect.y << "\n";
         float dt = GetFrameTime(); 
 
         if (player.rect.x >= 1740 && player.rect.y == 440 && gamestate.currentPhase == 1) {
@@ -263,8 +273,8 @@ int main(){
                     {2340, 500, player.rect.width, 15},
                     {2700, 500, player.rect.width, 15},
                     {3000, 500, player.rect.width, 15},
-                    {3300, 500, player.rect.width, 15},
-                    {5000, 500, 300, 15}
+                    {3500, 500, player.rect.width, 15},
+                    {5200, 500, 300, 15}
 
                 };
                 enemy.rect.y = 9999;
@@ -292,13 +302,13 @@ int main(){
             }else{
                 grounds[3].y = 500;
             }
-            if (player.rect.x >= grounds[4].x-60 && player.rect.x <= grounds[4].x+60 && player.rect.y >= 440) {
-                player.velocity.y -= 1500; // Faz o jogador pular
-                grounds[4].y = 9999;
+            if (player.rect.x >= grounds[4].x-60 && player.rect.x <= grounds[4].x+60 && player.rect.y >= 440 && player.isOnground) {
+                player.velocity.y -= 1650; // Faz o jogador pular
+                player.isOnground = false;
             }else{
                 grounds[4].y = 500;
             }
-            if(player.rect.x >= 4850 && player.rect.x <= 5150 && player.rect.y == 440){
+            if(player.rect.x >= 5200 && player.rect.x <= 5700 && player.rect.y == 440){
                 //fase
                 gamestate.currentPhase = 3;
                 grounds.clear();
