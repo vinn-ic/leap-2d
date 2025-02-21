@@ -7,8 +7,8 @@
 using namespace std;
 
 
-const int screenwidth = 1600;
-const int screenheight = 900;
+const int screenwidth = 1350;
+const int screenheight = 850;
 const float gravidade = 550.0f;
 const float jumpforce = 300.0f;
 const float dash_distance = 150.0f;
@@ -21,6 +21,7 @@ struct Player{
     Rectangle rect;
     Vector2 velocity;
     bool isOnground;
+    bool isdoblejump; // se o player não deu o pulo doble jump // ver se o nome esta certo!
 };
 struct Enemy{
     Rectangle rect;
@@ -56,6 +57,7 @@ Vector2 Vector2Lerp(Vector2 start, Vector2 end, float alpha) {
     return (Vector2){
         start.x + alpha * (end.x - start.x),
         start.y + alpha * (end.y - start.y)
+
         };
 }
 
@@ -76,6 +78,10 @@ void logicagame(float dt){
         //pulo
         player.velocity.y -= jumpforce;
         player.isOnground = false;
+    }
+    if(IsKeyPressed(KEY_SPACE) && player.velocity.y > -100 && player.velocity.y < 150 && !player.isdoblejump){
+        player.velocity.y -= jumpforce;
+        player.isdoblejump = true;
     }
     //desh
     if(IsKeyPressed(KEY_Q) && gamestate.dashCount > 0){
@@ -118,6 +124,7 @@ void physics(float dt){
             player.rect.y = ground.y - player.rect.height;
             player.velocity.y = 0;
             player.isOnground = true;
+            player.isdoblejump = false;
         }
     }
 
@@ -155,78 +162,7 @@ void UpadateEnemy(){
 }
 
 void Render(Camera2D &camera){
-    float porcento_game;
-
-    porcento_game = player.rect.x / 10900;
-    porcento_game = porcento_game*100;
-    if(porcento_game <= 0){
-        porcento_game = 0;
-    }
-
-
-    if(!gamestate.loby){
-        BeginDrawing();
-        ClearBackground(SKYBLUE);
-        BeginMode2D(camera);
-
-        DrawRectangle(camera.target.x-400, camera.target.y-300, 800,600,RAYWHITE);
-
-        DrawText("leap-2d",camera.target.x-60,camera.target.y-250,40,BLACK);
-        DrawText("by-vinin4:20", camera.target.x-195, camera.target.y-180,20,BLACK);
-
-        DrawText(TextFormat("mortes: %d",gamestate.deaths),camera.target.x-350, camera.target.y-100 ,20,BLACK);
-        DrawText(TextFormat("%.2f%%",porcento_game),camera.target.x-350,camera.target.y-75,20,BLACK);
-
-        DrawText("'Q'para dash", camera.target.x-380, camera.target.y+220,20,BLACK);
-        DrawText("aperte 'ENTER' para começar! 'CAPS-LOCK' para pausar", camera.target.x-380, camera.target.y+250 ,20,BLACK);
-
-
-        if(IsKeyPressed(KEY_ENTER)){
-            gamestate.loby = true;
-        }
-
-        EndMode2D();
-        EndDrawing();
-        
-        
-    }else if(gamestate.loby){
-
-        BeginDrawing();
-        ClearBackground(SKYBLUE);
-
-        BeginMode2D(camera);
-
-        DrawCircle(camera.target.x-400,camera.target.y-300,80,YELLOW);
-
-        for(const auto &ground : grounds){
-            DrawRectangleRec(ground, GREEN);
-        }
-        DrawRectangleRec(player.rect, BLUE);
-        DrawRectangleRec(enemy.rect, RED);
-        DrawRectangleRec(enemy2.rect, RED);
-
-
-        EndMode2D();
-
-        DrawText(TextFormat("mortes: %d", gamestate.deaths), 10, 10,20, RED);
-        DrawText(TextFormat("dashes: %d",gamestate.dashCount), 10,40,20,RED);
-        DrawText(TextFormat("%.2f%%",porcento_game), 10, 70, 20, RED);
-
-
-        if (player.rect.x >= 1510 && player.rect.x <= 1990 && player.rect.y == 440) {
-            DrawText("fase 2!",650,240,45,RED);//
-        }
-        if (player.rect.x >= 4990 && player.rect.x <= 5250 && player.rect.y == 440) {
-            DrawText("fase 3!",650,240,45,RED);//
-        }
-        if(player.rect.x >= 7800 && player.rect.x <= 8100 && player.rect.y == 440){
-            DrawText("fase 4!",650,240,45,RED);
-        }
-        if(player.rect.x >= 10900 && player.rect.x <= 10900+300 && player.rect.y == 440){
-            DrawText("fase 5!",650,240,45,RED);
-        }
-        EndDrawing();
-    }
+  
 }
 
  
@@ -244,7 +180,7 @@ int main(){
         {1090, 500, 350, 20},
         {1740, 500, 300, 20}, // Goal
     };
-    player = {{0, 400, 50, 60}, {0, 0}, true};
+    player = {{0, 400, 50, 60}, {0, 0}, true, false};
     enemy = {{1100, 440, 50, 60}, true};
     enemy2 = {{10520, 440, 50, 60}};
 
@@ -254,7 +190,7 @@ int main(){
     int lastPhase = gamestate.currentPhase; // Rastreamento da fase atual
 
     while(!WindowShouldClose()){
-        cout << player.rect.y << "\n";
+        cout << player.velocity.y << "\n";
         float dt = GetFrameTime(); 
 
         if (player.rect.x >= 1740 && player.rect.y == 440 && gamestate.currentPhase == 1) {
@@ -309,7 +245,8 @@ int main(){
                 grounds[4].y = 500;
             }
             if(player.rect.x >= 5200 && player.rect.x <= 5700 && player.rect.y == 440){
-                //fase
+                //fase 3!!!
+                gamestate.dashCount = 3; 
                 gamestate.currentPhase = 3;
                 grounds.clear();
                 grounds = {
@@ -323,7 +260,7 @@ int main(){
             }
         };
         if(gamestate.currentPhase == 3){
-            //logica fase3
+            //logica fase3  
             gamestate.respawn = 5100;
             if(player.rect.x >= grounds[1].x && player.rect.x <= grounds[1].x+300 && player.rect.y == 440){
                 if(boolgronds.plataformaS1) player.rect.x += 5;
@@ -463,8 +400,81 @@ int main(){
 
 
         camera.target = Vector2Lerp(camera.target, {player.rect.x, player.rect.y},0.1f);
+        // render!@!!!!!!!!! start
+        float porcento_game;
 
-        Render(camera);
+        porcento_game = player.rect.x / 10900;
+        porcento_game = porcento_game*100;
+        if(porcento_game <= 0){
+            porcento_game = 0;
+        }
+    
+    
+        if(!gamestate.loby){
+            BeginDrawing();
+            ClearBackground(SKYBLUE);
+            BeginMode2D(camera);
+    
+            DrawRectangle(camera.target.x-400, camera.target.y-300, 800,600,RAYWHITE);
+    
+            DrawText("leap-2d",camera.target.x-60,camera.target.y-250,40,BLACK);
+            DrawText("by-vinin4:20", camera.target.x-195, camera.target.y-180,20,BLACK);
+    
+            DrawText(TextFormat("mortes: %d",gamestate.deaths),camera.target.x-350, camera.target.y-100 ,20,BLACK);
+            DrawText(TextFormat("%.2f%%",porcento_game),camera.target.x-350,camera.target.y-75,20,BLACK);
+    
+            DrawText("'Q'para dash", camera.target.x-380, camera.target.y+220,20,BLACK);
+            DrawText("aperte 'ENTER' para começar! 'CAPS-LOCK' para pausar", camera.target.x-380, camera.target.y+250 ,20,BLACK);
+    
+    
+            if(IsKeyPressed(KEY_ENTER)){
+                gamestate.loby = true;
+            }
+    
+            EndMode2D();
+            EndDrawing();
+            
+            
+        }else if(gamestate.loby){
+    
+            BeginDrawing();
+            ClearBackground(SKYBLUE);
+            
+    
+            BeginMode2D(camera);
+    
+            DrawCircle(camera.target.x-400,camera.target.y-300,80,YELLOW);
+    
+            for(const auto &ground : grounds){
+                DrawRectangleRec(ground, GREEN);
+            }
+            DrawRectangleRec(player.rect, BLUE);
+            DrawRectangleRec(enemy.rect, RED);
+            DrawRectangleRec(enemy2.rect, RED);
+    
+    
+            EndMode2D();
+    
+            DrawText(TextFormat("mortes: %d", gamestate.deaths), 10, 10,20, RED);
+            DrawText(TextFormat("dashes: %d",gamestate.dashCount), 10,40,20,RED);
+            DrawText(TextFormat("%.2f%%",porcento_game), 10, 70, 20, RED);
+    
+    
+            if (player.rect.x >= 1510 && player.rect.x <= 1990 && player.rect.y == 440) {
+                DrawText("fase 2!",650,240,45,RED);//
+            }
+            if (player.rect.x >= 4990 && player.rect.x <= 5250 && player.rect.y == 440) {
+                DrawText("fase 3!",650,240,45,RED);//
+            }
+            if(player.rect.x >= 7800 && player.rect.x <= 8100 && player.rect.y == 440){
+                DrawText("fase 4!",650,240,45,RED);
+            }
+            if(player.rect.x >= 10900 && player.rect.x <= 10900+300 && player.rect.y == 440){
+                DrawText("fase 5!",650,240,45,RED);
+            }
+            EndDrawing();
+        }
+        //render!!!@!!!!!!! end
       
     }
     CloseWindow();
